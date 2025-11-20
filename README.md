@@ -1,4 +1,4 @@
-# AI_Photoshop_App
+# AI Photoshop App
 
 A mobile photo-relighting prototype built with **Expo + React Native**.
 The app allows users to load an image, adjust lighting properties, apply relighting effects, and preview the results in real time.
@@ -25,23 +25,46 @@ The app allows users to load an image, adjust lighting properties, apply relight
 
 ## Project Structure
 
-my-app/
-App.js
-metro.config.js
-babel.config.js
-assets/
-icons/
-images/
-src/
-screens/
-HomeScreen.js
-EditorScreen.js
-components/
-TopBar.js
-MainImage.js
-SidePanel.js
-SlidersPanel.js
-BottomNav.js
+```sh
+.
+├── App.js
+├── app.json
+├── assets
+│   ├── adaptive-icon.png
+│   ├── favicon.png
+│   ├── icon.png
+│   ├── icons
+│   │   ├── adjust.svg
+│   │   ├── commits.svg
+│   │   ├── down.svg
+│   │   ├── home.svg
+│   │   ├── layers.svg
+│   │   ├── lightning.svg
+│   │   ├── more.svg
+│   │   ├── redo.svg
+│   │   ├── size.svg
+│   │   ├── type.svg
+│   │   ├── undo.svg
+│   │   └── up.svg
+│   ├── images
+│   │   ├── halloween.png
+│   │   ├── logo.png
+│   │   └── thumb.png
+│   └── splash-icon.png
+├── index.js
+├── metro.config.js
+├── README.md
+└── src
+    ├── components
+    │   ├── BottomNav.js
+    │   ├── MainImage.js
+    │   ├── SidePanel.js
+    │   ├── SlidersPanel.js
+    │   └── TopBar.js
+    └── screens
+        ├── EditorScreen.js
+        └── HomeScreen.js
+```
 
 ## Getting Started
 
@@ -49,6 +72,59 @@ BottomNav.js
 
 ```sh
 npm install
+```
 
-### Start the development server:
+ ### Start the development server:
+```sh
+npx expo start
+```
 
+#### Run on a physical iOS device
+
+-   Install **Expo Go** from the Apple App Store
+    
+-   Open Expo Go
+    
+-   Scan the QR code shown in your terminal or browser
+    
+-   The app will load instantly
+
+#### Run on a physical Android device
+
+-   Install **Expo Go** from the Google Play Store
+    
+-   Open Expo Go
+    
+-   Scan the QR code shown in your terminal or browser
+    
+-   The app will load instantly
+
+### iOS Simulator (requires Xcode):
+```sh
+npm run ios
+```
+
+### Android Simulator (requires Android Development Studio):
+```sh
+npm run android
+```
+
+### Building a Production App:
+#### Use Expo Application Services (EAS):
+
+```sh
+npm install -g eas-cli
+eas build -p ios
+eas build -p android
+```
+
+#### This generates `.ipa` and `.apk/.aab` files for distribution.
+
+## Notes
+
+-   SVG support requires `metro.config.js` with `react-native-svg-transformer`.    
+-   All icons should be exported at **3x resolution** or as **SVG** to avoid graininess.
+-   Layout uses absolute positioning for side panel to match the Figma design.
+
+## License
+MIT
