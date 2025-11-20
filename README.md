@@ -101,12 +101,12 @@ npx expo start
 
 ### iOS Simulator (requires Xcode):
 ```sh
-npm run ios
+npx expo start --ios
 ```
 
 ### Android Simulator (requires Android Development Studio):
 ```sh
-npm run android
+npm expo start --android
 ```
 
 ### Building a Production App:
