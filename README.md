@@ -27,6 +27,7 @@ The app allows users to load an image, adjust lighting properties, apply relight
 
 ```sh
 .
+├── .gitignore
 ├── App.js
 ├── app.json
 ├── assets
