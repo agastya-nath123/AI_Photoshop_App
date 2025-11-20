@@ -30,37 +30,39 @@ The app allows users to load an image, adjust lighting properties, apply relight
 ├── App.js
 ├── app.json
 ├── assets
-│   ├── adaptive-icon.png
-│   ├── favicon.png
-│   ├── icon.png
-│   ├── icons
-│   │   ├── adjust.svg
-│   │   ├── commits.svg
-│   │   ├── down.svg
-│   │   ├── home.svg
-│   │   ├── layers.svg
-│   │   ├── lightning.svg
-│   │   ├── more.svg
-│   │   ├── redo.svg
-│   │   ├── size.svg
-│   │   ├── type.svg
-│   │   ├── undo.svg
-│   │   └── up.svg
-│   ├── images
-│   │   ├── halloween.png
-│   │   ├── logo.png
-│   │   └── thumb.png
-│   └── splash-icon.png
+│   ├── adaptive-icon.png
+│   ├── favicon.png
+│   ├── icon.png
+│   ├── icons
+│   │   ├── adjust.svg
+│   │   ├── commits.svg
+│   │   ├── down.svg
+│   │   ├── home.svg
+│   │   ├── layers.svg
+│   │   ├── lightning.svg
+│   │   ├── more.svg
+│   │   ├── redo.svg
+│   │   ├── size.svg
+│   │   ├── type.svg
+│   │   ├── undo.svg
+│   │   └── up.svg
+│   ├── images
+│   │   ├── halloween.png
+│   │   ├── logo.png
+│   │   └── thumb.png
+│   └── splash-icon.png
 ├── index.js
 ├── metro.config.js
+├── package-lock.json
+├── package.json
 ├── README.md
 └── src
     ├── components
-    │   ├── BottomNav.js
-    │   ├── MainImage.js
-    │   ├── SidePanel.js
-    │   ├── SlidersPanel.js
-    │   └── TopBar.js
+    │   ├── BottomNav.js
+    │   ├── MainImage.js
+    │   ├── SidePanel.js
+    │   ├── SlidersPanel.js
+    │   └── TopBar.js
     └── screens
         ├── EditorScreen.js
         └── HomeScreen.js
