@@ -53,6 +53,7 @@ The app allows users to load an image, adjust lighting properties, apply relight
 │   │   └── thumb.png
 │   └── splash-icon.png
 ├── index.js
+├── LICENSE
 ├── metro.config.js
 ├── package-lock.json
 ├── package.json
