@@ -13,8 +13,9 @@ import BottomNav from "../components/BottomNav";
 import { PanResponder } from "react-native";
 
 export default function EditorScreen() {
-    const LIGHT_SIZE = 40;
-
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [relitImage, setRelitImage] = useState(null);
+    const [jobId, setJobId] = useState(null);
     const [bounds, setBounds] = useState({
         x: 0,
         y: 0,
@@ -24,6 +25,89 @@ export default function EditorScreen() {
     // xy state for the draggable light
     const [pos] = useState(new Animated.ValueXY({ x: 150, y: 150 }));
 
+    const LIGHT_SIZE = 40;
+
+    async function uploadImage(imageUri) {
+        console.log("UPLOAD START");
+        let fileToUpload;
+        if (!imageUri) {
+            console.log("No image selected – cannot upload.");
+            return;
+        }
+        if (imageUri.startsWith("blob:")) {
+            // fetch blob data
+            const blob = await fetch(imageUri).then((res) => res.blob());
+            fileToUpload = new File([blob], `upload_${Date.now()}.jpg`, {
+                type: blob.type || "image/jpeg",
+            });
+        } else {
+            // real device uri
+            const filename = imageUri.split("/").pop();
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : "image/jpeg";
+
+            fileToUpload = {
+                uri: imageUri,
+                name: filename,
+                type,
+            };
+        }
+        let formData = new FormData();
+        formData.append("file", fileToUpload);
+
+        try {
+            const res = await fetch("http://10.50.32.16:8000/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const json = await res.json();
+            console.log("Uploaded:", json);
+            setJobId(json["job_id"]);
+        } catch (err) {
+            console.error("Upload error:", err);
+        }
+    }
+
+    async function relightImage() {
+        console.log("JOB ID BEFORE RELIGHT:", jobId);
+
+        if (!jobId) {
+            console.log("No job ID yet.");
+            return;
+        }
+
+        // convert screen → local coords
+        const x = pos.x._value - bounds.x;
+        const y = pos.y._value - bounds.y;
+        const z = 50;
+
+        console.log("BOUNDS:", bounds);
+        console.log("POS:", pos.x._value, pos.y._value);
+        console.log("LIGHT COORD:", x, y, z);
+
+        if (isNaN(x) || isNaN(y)) {
+            console.log("x or y is NaN — layout not ready");
+            return;
+        }
+
+        const url = `http://10.50.32.16:8000/relight?job_id=${jobId}&x=${x}&y=${y}&z=${z}`;
+        const res = await fetch(url, {
+            method: "POST",
+        });
+
+        if (!res.ok) {
+            console.log("Relight error:", await res.text());
+            return;
+        }
+        // response is JPEG bytes → convert to blob URL
+        const blob = await res.blob();
+        const uri = URL.createObjectURL(blob);
+
+        console.log("Relit image URI:", uri);
+
+        setRelitImage(uri);
+    }
     // Drag logic
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -52,7 +136,6 @@ export default function EditorScreen() {
         },
     });
 
-    const [selectedImage, setSelectedImage] = useState(null);
     const insets = useSafeAreaInsets();
 
     return (
@@ -70,14 +153,27 @@ export default function EditorScreen() {
                 <TopBar />
                 <MainImage
                     onLayout={(layout) => setBounds(layout)}
-                    imageUri={selectedImage}
+                    imageUri={relitImage || selectedImage}
+                />{" "}
+                <SidePanel
+                    onPickImage={(uri) => {
+                        setSelectedImage(uri);
+                        setRelitImage(null); // <-- CRUCIAL
+                        setJobId(null); // optional: force fresh upload
+                    }}
+                    onUploadRequest={() => {
+                        if (!selectedImage) {
+                            console.log("Pick an image first.");
+                            return;
+                        }
+                        uploadImage(selectedImage);
+                    }}
                 />
-                <SidePanel onPickImage={setSelectedImage} />
                 <SlidersPanel />
             </View>
 
             {/* Bottom bar */}
-            <BottomNav />
+            <BottomNav onRelight={relightImage} />
             <View
                 pointerEvents="box-none"
                 style={{

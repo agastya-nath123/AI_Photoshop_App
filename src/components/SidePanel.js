@@ -2,7 +2,7 @@ import { View, Image, TouchableOpacity, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import UpIcon from "../../assets/icons/up.svg";
 
-export default function SidePanel({ onPickImage }) {
+export default function SidePanel({ onPickImage, onUploadRequest }) {
     async function pickImage() {
         const permission =
             await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -31,6 +31,7 @@ export default function SidePanel({ onPickImage }) {
             }}
         >
             <TouchableOpacity
+                onPress={() => onUploadRequest()}
                 style={{
                     width: 32,
                     height: 32,
