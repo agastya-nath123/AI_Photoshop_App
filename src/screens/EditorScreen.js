@@ -1,4 +1,5 @@
 import { View } from "react-native";
+import { Platform } from "react-native";
 import {
     SafeAreaView,
     useSafeAreaInsets,
@@ -100,13 +101,24 @@ export default function EditorScreen() {
             console.log("Relight error:", await res.text());
             return;
         }
-        // response is JPEG bytes → convert to blob URL
-        const blob = await res.blob();
-        const uri = URL.createObjectURL(blob);
+        if (Platform.OS === "web") {
+            const blob = await res.blob();
+            const uri = URL.createObjectURL(blob);
+            setRelitImage(uri);
+            return;
+        }
+        const arrayBuffer = await res.arrayBuffer();
+        let binary = "";
+        const bytes = new Uint8Array(arrayBuffer);
 
-        console.log("Relit image URI:", uri);
+        for (let i = 0; i < bytes.length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
 
-        setRelitImage(uri);
+        const base64 = btoa(binary);
+
+        const dataUri = `data:image/jpeg;base64,${base64}`;
+        setRelitImage(dataUri);
     }
     // Drag logic
     const panResponder = PanResponder.create({
