@@ -2,9 +2,22 @@ import { View, Text } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function SlidersPanel() {
+export default function SlidersPanel({ zValue, onZChange }) {
   return (
     <View style={{ marginHorizontal: 20, marginTop: 20 }}>
+
+        <Text style={{ color: '#fff', marginBottom: 8 }}>Z-coordinate: {zValue}</Text>
+          
+        <Slider
+            minimumValue={0}
+            maximumValue={100}
+            value={zValue}
+            onValueChange={onZChange}
+            minimumTrackTintColor="#3b82f6"
+            maximumTrackTintColor="#444"
+            thumbTintColor="#3b82f6"
+        />
+
         <Text style={{ color: '#fff', marginBottom: 8 }}>Intensity</Text>
           
         <Slider

@@ -17,6 +17,7 @@ export default function EditorScreen() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [relitImage, setRelitImage] = useState(null);
     const [jobId, setJobId] = useState(null);
+    const [zValue, setZValue] = useState(50);   // default Z
     const [bounds, setBounds] = useState({
         x: 0,
         y: 0,
@@ -81,7 +82,7 @@ export default function EditorScreen() {
         // convert screen → local coords
         const x = pos.x._value - bounds.x;
         const y = pos.y._value - bounds.y;
-        const z = 50;
+        const z = zValue;
 
         console.log("BOUNDS:", bounds);
         console.log("POS:", pos.x._value, pos.y._value);
@@ -181,7 +182,10 @@ export default function EditorScreen() {
                         uploadImage(selectedImage);
                     }}
                 />
-                <SlidersPanel />
+                <SlidersPanel
+                    zValue={zValue}
+                    onZChange={setZValue}
+                />
             </View>
 
             {/* Bottom bar */}
