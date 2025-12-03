@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { Platform } from "react-native";
+import { Text, ActivityIndicator, Platform } from "react-native";
 import {
     SafeAreaView,
     useSafeAreaInsets,
@@ -13,11 +13,13 @@ import SlidersPanel from "../components/SlidersPanel";
 import BottomNav from "../components/BottomNav";
 import { PanResponder } from "react-native";
 
+const API_BASE = "http://10.10.209.66:8000";
+
 export default function EditorScreen() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [relitImage, setRelitImage] = useState(null);
     const [jobId, setJobId] = useState(null);
-    const [zValue, setZValue] = useState(50);   // default Z
+    const [zValue, setZValue] = useState(50); // default Z
     const [bounds, setBounds] = useState({
         x: 0,
         y: 0,
@@ -26,10 +28,37 @@ export default function EditorScreen() {
     });
     // xy state for the draggable light
     const [pos] = useState(new Animated.ValueXY({ x: 150, y: 150 }));
+    const [isLoading, setIsLoading] = useState(false);
 
     const LIGHT_SIZE = 40;
 
+    function pollUntilReady(jobId) {
+        const interval = setInterval(async () => {
+            try {
+                const res = await fetch(
+                    `${API_BASE}/status/${jobId}`
+                );
+                const json = await res.json();
+
+                if (json.status === "ready") {
+                    clearInterval(interval);
+                    setIsLoading(false);
+                    console.log("Backend artifacts ready.");
+                } else if (json.status === "error") {
+                    clearInterval(interval);
+                    setIsLoading(false);
+                    console.log("Processing error:", json.error);
+                }
+            } catch (e) {
+                clearInterval(interval);
+                setIsLoading(false);
+            }
+        }, 1000);
+    }
+
     async function uploadImage(imageUri) {
+        setIsLoading(true);
+
         console.log("UPLOAD START");
         let fileToUpload;
         if (!imageUri) {
@@ -58,7 +87,7 @@ export default function EditorScreen() {
         formData.append("file", fileToUpload);
 
         try {
-            const res = await fetch("http://10.50.32.16:8000/upload", {
+            const res = await fetch(`${API_BASE}/upload`, {
                 method: "POST",
                 body: formData,
             });
@@ -66,8 +95,10 @@ export default function EditorScreen() {
             const json = await res.json();
             console.log("Uploaded:", json);
             setJobId(json["job_id"]);
+            pollUntilReady(json.job_id);
         } catch (err) {
             console.error("Upload error:", err);
+            setIsLoading(false);
         }
     }
 
@@ -78,6 +109,7 @@ export default function EditorScreen() {
             console.log("No job ID yet.");
             return;
         }
+        setIsLoading(true);
 
         // convert screen → local coords
         const x = pos.x._value - bounds.x;
@@ -93,19 +125,21 @@ export default function EditorScreen() {
             return;
         }
 
-        const url = `http://10.50.32.16:8000/relight?job_id=${jobId}&x=${x}&y=${y}&z=${z}`;
+        const url = `${API_BASE}/relight?job_id=${jobId}&x=${x}&y=${y}&z=${z}`;
         const res = await fetch(url, {
             method: "POST",
         });
 
         if (!res.ok) {
             console.log("Relight error:", await res.text());
+            setIsLoading(false);
             return;
         }
         if (Platform.OS === "web") {
             const blob = await res.blob();
             const uri = URL.createObjectURL(blob);
             setRelitImage(uri);
+            setIsLoading(false);
             return;
         }
         const arrayBuffer = await res.arrayBuffer();
@@ -120,6 +154,7 @@ export default function EditorScreen() {
 
         const dataUri = `data:image/jpeg;base64,${base64}`;
         setRelitImage(dataUri);
+        setIsLoading(false);
     }
     // Drag logic
     const panResponder = PanResponder.create({
@@ -182,10 +217,7 @@ export default function EditorScreen() {
                         uploadImage(selectedImage);
                     }}
                 />
-                <SlidersPanel
-                    zValue={zValue}
-                    onZChange={setZValue}
-                />
+                <SlidersPanel zValue={zValue} onZChange={setZValue} />
             </View>
 
             {/* Bottom bar */}
@@ -221,6 +253,26 @@ export default function EditorScreen() {
                     }}
                 />
             </View>
+            {isLoading && (
+                <View
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 999,
+                    }}
+                >
+                    <ActivityIndicator size="large" color="#fff" />
+                    <Text style={{ color: "white", marginTop: 12 }}>
+                        Processing...
+                    </Text>
+                </View>
+            )}
         </SafeAreaView>
     );
 }
