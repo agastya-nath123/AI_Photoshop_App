@@ -1,12 +1,14 @@
-import { View, Image } from "react-native";
+import { View, Image, TouchableOpacity } from "react-native";
 
-export default function MainImage({ imageUri, onLayout }) {
+export default function MainImage({ imageUri, onLayout, onImagePress }) {
     const source = imageUri
         ? { uri: imageUri }
         : require("../../assets/images/halloween.png");
 
     return (
-        <View
+        <TouchableOpacity
+            activeOpacity={1}
+            onPress={onImagePress}
             onLayout={(e) => {
                 const layout = e.nativeEvent.layout;
                 onLayout(layout);
@@ -26,6 +28,6 @@ export default function MainImage({ imageUri, onLayout }) {
                 source={source}
                 style={{ width: "100%", height: "100%", resizeMode: "contain" }}
             />
-        </View>
+        </TouchableOpacity>
     );
 }
