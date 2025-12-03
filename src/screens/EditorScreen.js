@@ -4,7 +4,7 @@ import {
     SafeAreaView,
     useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Animated } from "react-native";
 import TopBar from "../components/TopBar";
 import MainImage from "../components/MainImage";
@@ -29,20 +29,30 @@ export default function EditorScreen() {
     // xy state for the draggable light
     const [pos] = useState(new Animated.ValueXY({ x: 150, y: 150 }));
     const [isLoading, setIsLoading] = useState(false);
+    const [showZSlider, setShowZSlider] = useState(false);
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading) {
+            // allow slider to appear on the NEXT frame, not the same frame
+            requestAnimationFrame(() => setShowZSlider(true));
+        } else {
+            setShowZSlider(false);
+        }
+    }, [isLoading]);
 
     const LIGHT_SIZE = 40;
 
     function pollUntilReady(jobId) {
         const interval = setInterval(async () => {
             try {
-                const res = await fetch(
-                    `${API_BASE}/status/${jobId}`
-                );
+                const res = await fetch(`${API_BASE}/status/${jobId}`);
                 const json = await res.json();
 
                 if (json.status === "ready") {
                     clearInterval(interval);
                     setIsLoading(false);
+                    setIsReady(true);
                     console.log("Backend artifacts ready.");
                 } else if (json.status === "error") {
                     clearInterval(interval);
@@ -208,6 +218,7 @@ export default function EditorScreen() {
                         setSelectedImage(uri);
                         setRelitImage(null); // <-- CRUCIAL
                         setJobId(null); // optional: force fresh upload
+                        setIsReady(false);
                     }}
                     onUploadRequest={() => {
                         if (!selectedImage) {
@@ -217,7 +228,11 @@ export default function EditorScreen() {
                         uploadImage(selectedImage);
                     }}
                 />
-                <SlidersPanel zValue={zValue} onZChange={setZValue} />
+                <SlidersPanel
+                    zValue={zValue}
+                    onZChange={setZValue}
+                    isReady={isReady && !isLoading}
+                />
             </View>
 
             {/* Bottom bar */}
