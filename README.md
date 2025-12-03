@@ -133,7 +133,7 @@ eas build -p android
 ## Precaution
 
 -   The IP address of the backend server needs to be changed so that the code could run well. For that, change the ip address in API_BASE
-at the top section of src/screens/EditorScreen.js to the public IP address of the server running the backend (if it is your own computer,
+at the top section of `src/screens/EditorScreen.js` to the public IP address of the server running the backend (if it is your own computer,
 a simple `ip addr` will also work well).
 
 ## License
